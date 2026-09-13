@@ -33,15 +33,18 @@ api_base = "https://api.openstreetmap.org/api/0.6"
 city_bbox = [43.46, -80.34, 43.60, -80.14]
 
 [conflation]
-# The ceiling, not the radius. Each pitch gets 0.6*sqrt(area), floored at 25 m,
-# capped here — the layers hold both a 33 m² hoop pad and an 89,000 m² disc golf
-# course, and one number cannot serve both.
-match_radius_m = 200.0
+# How far from the *edge* of the city polygon an OSM element may sit and still
+# be this pitch. Measuring from the edge rather than between centroids is what
+# lets one number serve both a 33 m² hoop pad and an 89,000 m² disc golf course:
+# 20, 25, 30 and 40 m all return the same 177 of 191 PRESENT, so nothing here
+# depends on the exact value. A flagged wicket strip searches wider — see the
+# pack.
+match_radius_m = 25.0
 
 [audit]
-# Only counted when the matched element sits outside the city polygon: a large
-# field legitimately has its centroid tens of metres from OSM's.
-far_match_m = 40.0
+# No far_match_m: the pitches pack has no such check. `inside` versus `nearby`
+# already says how well the match sits, and anything past the radius is MISSING.
+#
 # What this dataset is for. Each one gates its own `*_missing` check, the
 # engine's standing rule that an undeclared field checks nothing.
 expect_tags = ["name", "surface", "lit", "sport"]
