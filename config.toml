@@ -1,0 +1,74 @@
+# Guelph pitches dataset config for the address-beholder engine.
+# Pull the city layers first, then review:
+#   python fetch.py
+#   python ../address-beholder/run.py --dataset-dir . review
+
+[dataset]
+slug = "guelph-pitches"
+name = "Guelph Pitches and Courts"
+# Selects the engine's `pitches` domain pack: its Overpass filter, its identity
+# predicate and its checks. Addresses remain the default for a dataset that
+# declares nothing.
+feature_type = "pitches"
+
+[identity]
+# Proximity to the city polygon plus a compatible `sport`. **Not name**: OSM
+# carries `name` on 15 of Guelph's 303 pitches and the missing names are the
+# product of this dataset, so keying on name would report an unnamed pitch as a
+# missing feature and hide the very thing being audited.
+predicate = "proximity+sport"
+
+[source]
+# Written by fetch.py from Guelph Open Data OD1/22 (Park Courts) and OD1/23
+# (Sports Fields). Gitignored: it is a derived pull, rebuildable in seconds.
+sqlite_path = "data/source.db"
+active_status_values = []
+
+[osm]
+source = "overpass"
+overpass_url = "https://overpass-api.de/api/interpreter"
+api_base = "https://api.openstreetmap.org/api/0.6"
+# Verbatim from guelph-beholder, so the two Guelph datasets behold the same
+# rectangle. [south, west, north, east].
+city_bbox = [43.46, -80.34, 43.60, -80.14]
+
+[conflation]
+# The ceiling, not the radius. Each pitch gets 0.6*sqrt(area), floored at 25 m,
+# capped here — the layers hold both a 33 m² hoop pad and an 89,000 m² disc golf
+# course, and one number cannot serve both.
+match_radius_m = 200.0
+
+[audit]
+# Only counted when the matched element sits outside the city polygon: a large
+# field legitimately has its centroid tens of metres from OSM's.
+far_match_m = 40.0
+# What this dataset is for. Each one gates its own `*_missing` check, the
+# engine's standing rule that an undeclared field checks nothing.
+expect_tags = ["name", "surface", "lit", "sport"]
+# Deliberately empty. `name_missing` will fire on most of the city, and that is
+# the finding, not a background tag campaign to be filtered out of the headline.
+campaign_issues = []
+deprecated_tags = []
+
+[beholder]
+db_path = "data/beholder.db"
+snapshot_dir = "data/snapshot"
+cache_dir = "data/cache"
+
+[notes]
+preset_tags = [
+    "Doesn't exist / removed",
+    "OSM object is the whole park, not the pitch",
+    "Wrong sport in the city data",
+    "Needs a survey",
+]
+
+[auth]
+allowlist = ["skfd"]
+oauth_authorize_url = "https://www.openstreetmap.org/oauth2/authorize"
+oauth_token_url = "https://www.openstreetmap.org/oauth2/token"
+oauth_userinfo_url = "https://api.openstreetmap.org/api/0.6/user/details.json"
+oauth_scope = "read_prefs"
+# Shares the registered OSM OAuth2 app with the other datasets, so only one of
+# them can be *served* at a time. Reviews are unaffected.
+redirect_uri = "http://127.0.0.1:5000/auth/callback"
