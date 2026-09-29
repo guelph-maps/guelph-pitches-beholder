@@ -3,13 +3,19 @@
 The **Guelph pitches dataset** for [`address-beholder`](../address-beholder):
 audits how completely and how correctly the City of Guelph's park courts and
 sports fields are represented in OpenStreetMap, over time.
+Part of the [guelph-maps](https://github.com/guelph-maps) organisation, which
+indexes every Guelph project.
 
 It is the first dataset in the family that is not addresses, and the exemplar
 for the engine's domain-pack seam (`address-importer-friend/future-work/
 multi-city/13-guelph-feature-beholders.md`). Justified by
-`guelph-osm-import-audit/findings/parks-recreation.md`, which scored both layers
+[`guelph-osm-import-audit`](https://github.com/guelph-maps/guelph-osm-import-audit)
+(private) `findings/parks-recreation.md`, which scored both layers
 **tier 4, conflate**: OSM already holds more pitches than the City publishes, so
-there is nothing to import — what is missing is *tagging*.
+there is nothing to import — what is missing is *tagging*. The park polygons
+these courts and fields sit in are the same City layer behind
+[`guelph-parks-layer`](https://github.com/guelph-maps/guelph-parks-layer), the
+reference tile layer, [live here](https://guelph-maps.github.io/guelph-parks-layer/).
 
 This repo holds no engine code. It is a dataset directory — `config.toml`,
 `fetch.py`, and a gitignored `data/` — run by the engine beside it:
@@ -125,6 +131,7 @@ The host was expected to serve an incomplete certificate chain (`curl -k`,
 
 - [`address-beholder`](https://github.com/skfd/address-beholder) — the engine,
   whose `beholder/packs/pitches.py` holds the predicate and the checks
-- [`guelph-beholder`](../guelph-beholder) — the same engine on Guelph addresses
+- [`guelph-beholder`](https://github.com/guelph-maps/guelph-beholder) — the same
+  engine on Guelph addresses
 - `guelph-osm-import-audit` — the audit that scored these two layers, and the
   source of every `Type` → `sport` mapping in `fetch.py`
